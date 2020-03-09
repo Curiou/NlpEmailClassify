@@ -1,0 +1,7 @@
+更改CONFIG配置文件内的这四个目录为自己的目录即可运行：
+TRAIN_ROOT_DIR
+TEST_ROOT_DIR
+TRAIN_H5_PATH
+TEST_H5_PATH
+
+在Network文件里面运行
