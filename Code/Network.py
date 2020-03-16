@@ -2,17 +2,26 @@ import tensorflow as tf
 import tensorflow.keras as tk
 import tensorflow.keras.layers as tl
 from Code.DatasetMake import wordEmbeding
-import numpy as np
+import numpy as np, pandas as pd
 from Code.CONFIG import NUM_WORDS, EMBEDDING_DIM, MAX_SEQUENCE_LENGTH, BATCH_SIZE, EPOCH
+from Code.CONFIG import DATASET_ONE_LABEL_DICT_REVERSE, DATASET_TWO_LABEL_DICT_REVERSE, DATASET_THREE_LABEL_DICT_REVERSE
 # 统一网络参数数据类型
 tf.keras.backend.set_floatx('float64')
+from sklearn.metrics import recall_score, accuracy_score, f1_score
+
+#显示所有列
+pd.set_option('display.max_columns', None)
+#显示所有行
+pd.set_option('display.max_rows', None)
+
 
 def TrainOne():
-    train_x , train_y = wordEmbeding()
+    train_x , train_y = wordEmbeding(dataset= 3, train=True)
     train_x = tf.convert_to_tensor(train_x, dtype= tf.float64)
     train_y = tf.convert_to_tensor(train_y, dtype= tf.float64)
-
-    test_x, test_y = wordEmbeding(train= False)
+# dataset为3的时候才有fileName参数
+    test_x, test_y, fileName = wordEmbeding(dataset= 3, train= False)
+    # test_x, test_y = wordEmbeding(dataset=2, train=False)
     test_x = tf.convert_to_tensor(test_x, tf.float64)
     test_y = tf.convert_to_tensor(test_y, tf.float64)
 
@@ -43,6 +52,35 @@ def TrainOne():
               validation_split= 0.2
               )
     model.evaluate(test_x, test_y)
+    test_y = np.array(test_y)
+    print("===: ", test_y)
+    a = model.predict(test_x)
+    # print("+++"*22)
+    # print(a)
+    # print(a.shape)
+    # print("+++" * 22)
+    # 延轴1取最大值下标，即预测标签值
+    pred = a.argmax(1)
+    # print(pred)
+    # print("+++" * 22)
+    # print(test_y)
+    print("准确率：", accuracy_score(test_y, pred))
+    print("召回率： ",recall_score(test_y, pred, average= "macro"))
+    print("f1_score: ",f1_score(test_y, pred,  average= "weighted"))
+    '''
+    这后面仅是处理数据集3的时候才用
+    '''
+    # pre = [DATASET_THREE_LABEL_DICT_REVERSE[num] for num in pred]
+    # tru = [DATASET_THREE_LABEL_DICT_REVERSE[num] for num in test_y]
+    # print("==="*22)
+    # print("pre length: ",len(pre))
+    # print("true length: ", len(tru))
+    # print("fileName: ", len(fileName))
+    #
+    # df = pd.DataFrame({"PredictionLable":pre, "TrueLable": tru, "fileName":fileName})
+    # df.to_csv(r"C:\Users\Fisheep\Desktop\Code\py\Email\Dataset\DataframeHdf5\data33.csv", index= 0)
+    # print(df.loc[:40, :])
+
 
 
 '''
